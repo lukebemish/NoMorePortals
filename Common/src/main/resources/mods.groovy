@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Luke Bemish and contributors
+ * Copyright (C) 2023 Luke Bemish and contributors
  * SPDX-License-Identifier: LGPL-3.0-or-later
  */
 
@@ -12,6 +12,7 @@ ModsDotGroovy.make {
     mod {
         modId = this.buildProperties.mod_id
         displayName = this.buildProperties.mod_name
+        displayTest = DisplayTest.IGNORE_SERVER_VERSION
         version = this.version
         onQuilt {
             group = this.group
@@ -30,6 +31,8 @@ ModsDotGroovy.make {
                 quiltLoader = ">=${this.quiltLoaderVersion}"
             }
         }
+
+        displayTest = 'IGNORE_SERVER_VERSION'
     }
 
     onQuilt {

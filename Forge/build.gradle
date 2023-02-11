@@ -12,8 +12,8 @@ buildscript {
 }
 
 plugins {
-    id 'com.matthewprenger.cursegradle' version '1.4.0'
-    id "com.modrinth.minotaur" version "1.2.1"
+    id 'com.matthewprenger.cursegradle' version '1.+'
+    id "com.modrinth.minotaur" version "2.+"
 }
 
 apply plugin: 'java'
@@ -132,5 +132,44 @@ publishing {
         }
     }
     repositories {
+    }
+}
+
+// manual publishing version check
+def List<String> compatibleVersions = Arrays.asList(project.compatible_versions.split(','))
+if (!compatibleVersions.contains(project.minecraft_version)) {
+    throw new RuntimeException("You didn't update the list of compatible versions for publishing!")
+}
+
+if (project.hasProperty("curseforge_key")) {
+    curseforge {
+        apiKey = project.curseforge_key
+        project {
+            id = '825278'
+            releaseType = "${project.release_type}"
+            compatibleVersions.each {
+                addGameVersion it
+            }
+            addGameVersion 'Forge'
+            mainArtifact(jar) {
+                displayName = "No More Portals [Forge] v$project.version"
+            }
+        }
+        options {
+            forgeGradleIntegration = true
+        }
+    }
+}
+
+if (project.hasProperty("modrinth_key")) {
+    modrinth {
+        token = project.modrinth_key
+        projectId = 'gQeZmycy'
+        versionNumber = "$project.version"
+        versionType = "${project.release_type}"
+        detectLoaders = false
+        uploadFile = jar
+        gameVersions = compatibleVersions
+        loaders = ['forge']
     }
 }
