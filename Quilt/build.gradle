@@ -1,11 +1,12 @@
 plugins {
-    id 'org.quiltmc.loom' version '1.0.+'
     id 'maven-publish'
-    id 'com.matthewprenger.cursegradle' version '1.+'
-    id "com.modrinth.minotaur" version "2.+"
+    alias libs.plugins.cursegradle
+    alias libs.plugins.minotaur
 }
 
-archivesBaseName = "${mod_id}-quilt-${minecraft_version}"
+apply plugin: 'org.quiltmc.loom'
+
+base.archivesName = "${mod_id}-quilt-${libs.versions.minecraft.get()}"
 
 repositories {
 
@@ -29,18 +30,17 @@ configurations {
 }
 
 dependencies {
-
-    minecraft "com.mojang:minecraft:${minecraft_version}"
+    minecraft libs.minecraft
     mappings loom.layered() {
         officialMojangMappings()
-        parchment("org.parchmentmc.data:parchment-${parchment_minecraft_version}:${parchment_version}@zip")
+        parchment("org.parchmentmc.data:parchment-${libs.versions.parchment.minecraft.get()}:${libs.versions.parchment.mappings.get()}@zip")
     }
-    modImplementation "org.quiltmc:quilt-loader:${quilt_loader_version}"
+    modImplementation libs.quilt.loader
 
     implementation project(":Common")
 
-    compileOnly group: 'com.google.auto.service', name: 'auto-service', version: '1.0.1'
-    annotationProcessor group: 'com.google.auto.service', name: 'auto-service', version: '1.0.1'
+    compileOnly libs.autoservice
+    annotationProcessor libs.autoservice
 }
 
 loom {
@@ -92,7 +92,7 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             groupId project.group
-            artifactId project.archivesBaseName
+            artifactId base.archivesName.get()
             version project.version
             from components.java
         }
@@ -104,7 +104,7 @@ publishing {
 
 // manual publishing version check
 def List<String> compatibleVersions = Arrays.asList(project.compatible_versions.split(','))
-if (!compatibleVersions.contains(project.minecraft_version)) {
+if (!compatibleVersions.contains(libs.versions.minecraft.get())) {
     throw new RuntimeException("You didn't update the list of compatible versions for publishing!")
 }
 

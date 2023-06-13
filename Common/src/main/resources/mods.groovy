@@ -26,7 +26,7 @@ ModsDotGroovy.make {
             onForge {
                 forge = ">=${this.forgeVersion}"
             }
-            minecraft = this.minecraftVersionRange
+            minecraft = ">=${this.libs.versions.minecraft}"
             onQuilt {
                 quiltLoader = ">=${this.quiltLoaderVersion}"
             }

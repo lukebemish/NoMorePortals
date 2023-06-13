@@ -1,32 +1,18 @@
-buildscript {
-    repositories {
-        maven { url = 'https://maven.minecraftforge.net' }
-        maven { url = 'https://maven.parchmentmc.org' }
-        mavenCentral()
-    }
-    dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
-        classpath 'org.parchmentmc:librarian:1.+'
-        classpath 'org.spongepowered:mixingradle:0.7.+'
-    }
-}
-
 plugins {
-    id 'com.matthewprenger.cursegradle' version '1.+'
-    id "com.modrinth.minotaur" version "2.+"
+    alias libs.plugins.forgegradle
+    alias libs.plugins.librarian
+    alias libs.plugins.mixingradle
+    alias libs.plugins.minotaur
+    alias libs.plugins.cursegradle
 }
 
 apply plugin: 'java'
-apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'org.parchmentmc.librarian.forgegradle'
-apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
-apply plugin: 'org.spongepowered.mixin'
 
-archivesBaseName = "${mod_id}-forge-${minecraft_version}"
+base.archivesName = "${mod_id}-forge-${libs.versions.minecraft.get()}"
 
 minecraft {
-    mappings channel: 'parchment', version: "${parchment_minecraft_version}-${parchment_version}-${minecraft_version}"
+    mappings channel: 'parchment', version: "${libs.versions.parchment.minecraft.get()}-${libs.versions.parchment.mappings.get()}-${libs.versions.minecraft.get()}"
 
     if (project.hasProperty('forge_ats_enabled') && project.findProperty('forge_ats_enabled').toBoolean()) {
         // This location is hardcoded in Forge and can not be changed.
@@ -83,18 +69,14 @@ minecraft {
 
 sourceSets.main.resources.srcDir 'src/generated/resources'
 
-configurations {
-    testCompileOnly.extendsFrom(compileOnly)
-}
-
 dependencies {
-    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+    minecraft libs.forge
     compileOnly project(":Common")
 
-    compileOnly group: 'com.google.auto.service', name: 'auto-service', version: '1.0.1'
-    annotationProcessor group: 'com.google.auto.service', name: 'auto-service', version: '1.0.1'
+    compileOnly libs.autoservice
+    annotationProcessor libs.autoservice
 
-    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    annotationProcessor "org.spongepowered:mixin:${libs.versions.mixin.get()}:processor"
 }
 
 mixin {
@@ -124,7 +106,7 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             groupId project.group
-            artifactId project.archivesBaseName
+            artifactId base.archivesName.get()
             version project.version
             artifact jar
             artifact sourcesJar
@@ -137,7 +119,7 @@ publishing {
 
 // manual publishing version check
 def List<String> compatibleVersions = Arrays.asList(project.compatible_versions.split(','))
-if (!compatibleVersions.contains(project.minecraft_version)) {
+if (!compatibleVersions.contains(libs.versions.minecraft.get())) {
     throw new RuntimeException("You didn't update the list of compatible versions for publishing!")
 }
 
