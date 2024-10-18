@@ -31,6 +31,7 @@ public class NetherPortalBlockMixin {
     private void nomoreportals$onEntityInside(BlockState state, Level level, BlockPos pos, Entity entity, CallbackInfo ci) {
         if (level.isClientSide) return;
         if (entity.getType().is(PORTAL_ALLOWED)) return;
-        if (entity instanceof Player player && !player.isCreative()) ci.cancel();
+        if (entity instanceof Player player && player.isCreative()) return;
+        ci.cancel();
     }
 }
